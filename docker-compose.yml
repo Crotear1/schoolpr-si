@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo:latest # Verwendet das neueste offizielle MongoDB-Image
+    container_name: my-mongodb # Benennt den Container
+    restart: always # Startet den Container bei jedem Neustart des Hosts
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=rootuser # Root-Benutzername
+      - MONGO_INITDB_ROOT_PASSWORD=password # Root-Passwort
+    ports:
+      - 27017:27017 # Verbindet den internen Port 27017 mit dem Host-Port 27017
+    volumes:
+      - ./data/db:/data/db # Speichert Daten persistent auf dem Host
+
+  mongo-express:
+    image: mongo-express:latest # Verwendet das neueste offizielle Mongo Express Image
+    container_name: my-mongo-express # Benennt den Container
+    restart: always # Startet den Container bei jedem Neustart des Hosts
+    ports:
+      - 8081:8081 # Verbindet den internen Port 8081 mit dem Host-Port 8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=rootuser # Benutzername für Mongo Express
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password # Passwort für Mongo Express
+      - ME_CONFIG_MONGODB_SERVER=mongodb # Verbindung zu MongoDB
