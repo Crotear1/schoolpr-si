@@ -96,7 +96,7 @@ export default defineNuxtConfig({
     ]
   },
   supabase: {
-    url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY
+    url: env.SUPABASE_URL,
+    key: env.SUPABASE_KEY
   }
 })
