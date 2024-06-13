@@ -96,7 +96,7 @@ export default defineNuxtConfig({
     ]
   },
   supabase: {
-    url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY
+    url: 'https://ndywwbqwvxmqpxcwhpks.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5keXd3YnF3dnhtcXB4Y3docGtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQzNzUwODUsImV4cCI6MjAyOTk1MTA4NX0.wa3flpfeRX343RgpkN6kd4qcvYHIjYx5uLHdpFeZ16M'
   }
 })
