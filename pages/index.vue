@@ -3,6 +3,8 @@ const session = useSupabaseSession();
 
 const router = useRouter();
 
+const loading = ref(false)
+
 const nodes = ref([])
 
 function navigateTo(route: string) {
@@ -11,19 +13,15 @@ function navigateTo(route: string) {
 
 function parseLabels(data) {
   function processNode(node) {
-    // Label direkt in 'name' kopieren
     node.data = { name: node.label };
 
-    // Rekursiv die Kindknoten bearbeiten, falls vorhanden
     if (node.children && node.children.length > 0) {
       node.children.forEach(processNode);
     }
 
-    // Unnötiges 'label'-Feld entfernen
     delete node.label;
   }
 
-  // Starte die Verarbeitung mit der gesamten Datenstruktur
   data.forEach(processNode);
 
   return data;
@@ -34,36 +32,34 @@ function flattenChildren(data) {
     const children = item.children;
     if (children.length > 0) {
       item.children = children.reduce((acc, child) => {
-        // Vorhandene Children auf Level 1 in acc hinzufügen
-        acc.push(child);  // Hier wird nur das child-Objekt selbst hinzugefügt
-        // Level-2-Children zu acc hinzufügen
+        acc.push(child);
         acc.push(...child.children);
-        // Rekursiv für Level-2-Children aufrufen
         flattenChildren(child.children);
         return acc;
-      }, []); // Hier wird ein leeres Array als initialer Wert für acc verwendet
+      }, []);
     }
   }
 }
 
 async function loadWorkPackages() {
+  loading.value = true
   const response = await $fetch('/api/ap/apgetall', {
     method: 'GET',
   })
 
-  const test = parseLabels(response)
+  const parsedLabels = parseLabels(response)
 
-  const test2 = flattenChildren(test);
+  flattenChildren(parsedLabels);
 
-  test.forEach((item) => {
+  parsedLabels.forEach((item) => {
     item.children.forEach((child) => {
       delete child.children
     })
   })
 
-  nodes.value = test
+  nodes.value = parsedLabels
 
-//   console.log(nodes.value)
+  loading.value = false
 }
 
 await loadWorkPackages()
@@ -96,7 +92,7 @@ await loadWorkPackages()
             </div>
           </div>
         </template>
-        <template #content>
+        <template v-if="!loading" #content>
             <TreeTable :value="nodes">
                 <Column field="name" header="Name" expander></Column>
                 <Column headerStyle="width: 10rem">
@@ -108,6 +104,9 @@ await loadWorkPackages()
                     </template>
                 </Column>
             </TreeTable>
+        </template>
+        <template v-else #content>
+            <LoadingSpinner />
         </template>
     </Card>
 </template>

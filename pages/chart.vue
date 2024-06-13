@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Card>
+    <Card style="height: 100%;">
       <template #content>
         <GChart
           :type="type"
@@ -40,10 +40,9 @@ function parseDateString(dateString) {
 const chartData = reactive([]);
 
 const options = ref({
-  width: 1500,
-  height: 800,
+  width:  '100%',
+  height:  500,
   gantt: {
-
     palette: [
       '#10B981',   // Color for Task ID 'Research'
       '#3B82F6',   // Color for Task ID 'Write'

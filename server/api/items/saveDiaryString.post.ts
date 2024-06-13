@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       const percent = 1 / Number(apEntry.duration) * 100;
       const addPercent = percent + Number(apEntry.percentComplete);
       console.log(addPercent)
-      if(addPercent < 100) {
+      if(addPercent < 100 || addPercent === 100) {
         if (Math.abs(100 - addPercent) < 0.00001) {
           await AP.findOneAndUpdate({key: body.workPackage.code}, {percentComplete: 100});
         } else {

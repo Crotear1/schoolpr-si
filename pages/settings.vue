@@ -5,6 +5,8 @@ const toast = useToast();
 
 const loading = ref(true);
 
+const loading2 = ref(false);
+
 const selectedSchoolDays = ref([]);
 
 const loadingPersonRequest = ref(false);
@@ -18,6 +20,7 @@ const nodes = ref({})
 const schoolWorkingDays = ref([]);
 
 async function save() {
+  loading2.value	= true;
   const response = await $fetch('/api/psp/pspsave', {
     method: 'POST',
     body: {
@@ -32,6 +35,7 @@ async function save() {
     toast.add({ severity: 'error', summary: 'Warning', detail: 'Etwas ist schiefgelaufen', life: 3000 });
   }
   toast.add({ severity: 'success', summary: 'Info', detail: 'Erfolgreich gespeichert', life: 3000 });
+  loading2.value = false;
 }
 
 async function loadPSP() {
@@ -46,7 +50,6 @@ async function loadPSP() {
   nodes.value = response[0];
   projectName.value = response[0].label;
   loading.value = false;
-  // console.log(response[0].workingDays)
 }
 
 async function getAllWorkdays() {
@@ -109,9 +112,9 @@ onBeforeMount(async () => {
               <MultiSelect style="margin-left: 20px;" v-tooltip.focus.top="'Gib die Tage ein an denen du die Projektstunden hast'" v-model="nodes.workingDays" :options="schoolWorkingDays" optionLabel="name" placeholder="Schultage"
                 :maxSelectedLabels="3" class="w-full md:w-20rem" />
             </div>
-            <div v-if="!loading" style="display: flex; justify-content: end; margin-top: 20px;">
+            <div style="display: flex; justify-content: end; margin-top: 20px;">
                 <DeleteDialog style="margin-right: 10px;" />
-                <Button label="Speichern" iconPos="right" @click="save()" />
+                <Button :loading="loading2" label="Speichern" iconPos="right" @click="save()" />
             </div>
           </Fieldset>
           <div>
@@ -126,12 +129,11 @@ onBeforeMount(async () => {
                       <InputText v-tooltip.focus.top="'Gib den Namen ein'" v-model="person.name" />
 
                     </InputGroup>
-                    <Button icon="pi pi-trash" text rounded severity="danger" @click="nodes.persons.splice(index, 1)" />
                   </div>
                 </div>
               </div>
-              <div v-if="!loadingPersonRequest" style="display: flex; justify-content: end;">
-                  <Button label="Speichern" iconPos="right" @click="renamedPerson()" />
+              <div style="display: flex; justify-content: end;">
+                  <Button :loading="loadingPersonRequest" label="Speichern" iconPos="right" @click="renamedPerson()" />
               </div>
             </Fieldset>
           </div>

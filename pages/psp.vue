@@ -7,6 +7,8 @@ const toast = useToast();
 
 const nodes = ref({})
 
+const loading = ref(false);
+
 async function loadPSP() {
   const response = await $fetch('/api/psp/pspget', {
     method: 'GET',
@@ -44,23 +46,17 @@ let output = ref('');
 let hello = ref(null);
 const setScreenshot = ref(true);
 
-/**
- * Führt einen Screenshot im nächsten Tick aus
- * @returns {Promise<void>}
- */
-const takeScreenshot = async () => {
-  setScreenshot.value = false;
-  await nextTick();
-  const canvas = await html2canvas(hello.value);
-  output.value = canvas.toDataURL();
-  setScreenshot.value = true;
-};
 
 /**
  * Lädt den Screenshot herunter
  * @returns {void}
  */
-const downloadScreenshot = () => {
+const downloadScreenshot = async () => {
+  setScreenshot.value = false;
+  await nextTick();
+  const canvas = await html2canvas(hello.value);
+  output.value = canvas.toDataURL();
+  setScreenshot.value = true;
   const link = document.createElement('a');
   link.href = output.value;
   link.download = 'screenshot.png';
@@ -145,7 +141,9 @@ function removeById(key){
 }
 
 onBeforeMount(async () => {
+  loading.value = true;
   await loadPSP()
+  loading.value = false;
 })
 </script>
 
@@ -174,9 +172,7 @@ onBeforeMount(async () => {
   <Toast position="top-center"/>
   <Toolbar style="margin-top: auto;">
     <template #start>
-      <Button icon="pi pi-camera" @click="takeScreenshot" />
       <Button icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
-      <i class="pi pi-question-circle" v-tooltip.top="'Zuerst auf die Kamera drücken und dann auf den Download-Button'" style="color: var(--primary-color); margin-left: 10px;"></i>
     </template>
     <template #end>
       <div style="display: flex; justify-content: end;">
@@ -184,7 +180,4 @@ onBeforeMount(async () => {
       </div>
     </template>
     </Toolbar>
-    <div v-if="output !== ''" style="margin-top: 20px;">
-    <Image :src="output" alt="Screenshot"/>/
-  </div>
 </template>

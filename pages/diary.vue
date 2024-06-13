@@ -1,13 +1,15 @@
 <script setup>
+const loading = ref(false)
+
 const diary = ref({})
 
 async function loadDiary() {
+  loading.value = true
   const response = await $fetch('/api/items/getDiary', {
     method: 'GET',
   })
   diary.value = response;
-
-
+  loading.value = false
 }
 
 await loadDiary();
@@ -17,13 +19,13 @@ await loadDiary();
 
 <template>
 
-<Card class="card-height">
+<Card>
   <template #content>
-    <div class="p-grid">
-      <div class="p-col-12">
+    <div>
+      <div>
         <h1>Tagebuch</h1>
       </div>
-      <div class="p-col-12">
+      <div v-if="!loading" >
         <DataTable :value="diary" :paginator="true" :rows="10" :rowsPerPageOptions="[5,10,20]">
           <Column field="email" header="Email"></Column>
           <Column field="date" header="Datum"></Column>
@@ -37,6 +39,7 @@ await loadDiary();
           <Column field="sources" header="Quellen"></Column>
         </DataTable>
       </div>
+      <LoadingSpinner v-else />
     </div>
   </template>
 </Card>
