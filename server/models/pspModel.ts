@@ -19,41 +19,36 @@ const childSchema1 = childSchema.add({ children: [childSchema] });
 const workingDaySchema: Schema = new Schema({
   name: { type: String, required: true },
   code: { type: Number, required: true },
-  description : { type: String, required: true },
-  isComplete : { type: Boolean, required: true },
-  dates: { type: Schema.Types.Mixed, required: true},
-  color: { type: String, required: true},
+  description: { type: String, required: true },
+  isComplete: { type: Boolean, required: true },
+  dates: { type: Schema.Types.Mixed, required: true },
+  color: { type: String, required: true },
 });
 
 const PSPSchema: Schema = new Schema({
   workingDays: { type: [workingDaySchema], default: [] },
   label: { type: String, required: false },
   level: { type: Number, required: false },
-  children: { type: [childSchema1], required: true },
+  children: { type: [Schema.Types.ObjectId], ref: 'Child', required: true }, // Angenommen, childSchema1 ist ein Verweis auf ein anderes Schema
   key: { type: String, required: false },
 });
 
-// fills a psp document with children items
-export const fillPSP = async (children: [IAP]): Promise<[IAP]> => {
-
-  for (let i = 0; i < children.length; i++) {
-    // Find the AP model in the database with the same ID as the current child
-    const obj = await AP.findById(children[i]._id) as IAP;
-    // If the AP model was found in the database
-    if(obj){
-      // Merge the properties of the found AP model into the current child
-      Object.assign(children[i], obj);
-
-      // If the current child has its own children
-      if(children[i].children){
-        // Recursively fill the children of the current child
-        children[i].children = await fillPSP(children[i].children);
+// Optimiertes fillPSP
+export const fillPSP = async (children: IAP[]): Promise<IAP[]> => {
+  const updatedChildren = await Promise.all(children.map(async (child) => {
+    const obj = await AP.findById(child._id) as IAP;
+    if (obj) {
+      const updatedChild = { ...child, ...obj };
+      if (updatedChild.children) {
+        updatedChild.children = await fillPSP(updatedChild.children);
       }
+      return updatedChild;
     }
-  }
-  return children;
-}
+    return child;
+  }));
+  return updatedChildren;
+};
 
-const PSP = model('PSP', PSPSchema); // define PSP Model with PSPSchema
+const PSP = model('PSP', PSPSchema);
 
 export { IPSP, PSP };
