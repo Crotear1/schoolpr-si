@@ -19,36 +19,35 @@ const childSchema1 = childSchema.add({ children: [childSchema] });
 const workingDaySchema: Schema = new Schema({
   name: { type: String, required: true },
   code: { type: Number, required: true },
-  description: { type: String, required: true },
-  isComplete: { type: Boolean, required: true },
-  dates: { type: Schema.Types.Mixed, required: true },
-  color: { type: String, required: true },
+  description : { type: String, required: true },
+  isComplete : { type: Boolean, required: true },
+  dates: { type: Schema.Types.Mixed, required: true},
+  color: { type: String, required: true},
 });
 
 const PSPSchema: Schema = new Schema({
   workingDays: { type: [workingDaySchema], default: [] },
   label: { type: String, required: false },
   level: { type: Number, required: false },
-  children: { type: [Schema.Types.ObjectId], ref: 'Child', required: true }, // Angenommen, childSchema1 ist ein Verweis auf ein anderes Schema
+  children: { type: [childSchema1], required: true },
   key: { type: String, required: false },
 });
 
-// Optimiertes fillPSP
+// fills a psp document with children items
 export const fillPSP = async (children: IAP[]): Promise<IAP[]> => {
-  const updatedChildren = await Promise.all(children.map(async (child) => {
+  const promises = children.map(async (child) => {
     const obj = await AP.findById(child._id) as IAP;
     if (obj) {
-      const updatedChild = { ...child, ...obj };
-      if (updatedChild.children) {
-        updatedChild.children = await fillPSP(updatedChild.children);
+      Object.assign(child, obj);
+      if (child.children) {
+        child.children = await fillPSP(child.children);
       }
-      return updatedChild;
     }
     return child;
-  }));
-  return updatedChildren;
+  });
+  return Promise.all(promises);
 };
 
-const PSP = model('PSP', PSPSchema);
+const PSP = model('PSP', PSPSchema); // define PSP Model with PSPSchema
 
 export { IPSP, PSP };
