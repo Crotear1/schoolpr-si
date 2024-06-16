@@ -89,9 +89,7 @@ await getAP();
           </Card>
         </div>
         <div style="margin-top: 10px;">
-          <Button icon="pi pi-camera" @click="takeScreenshot" />
           <Button icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
-          <i class="pi pi-question-circle" v-tooltip.top="'Zuerst auf die Kamera drücken und dann auf den Download-Button'" style="color: var(--primary-color); margin-left: 10px;"></i>
         </div>
       </Sidebar>
       <Button text type="button" icon="pi pi-search" v-tooltip.top="'Anzeigen'" rounded severity="success" @click="visible = true" />

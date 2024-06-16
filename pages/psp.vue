@@ -25,7 +25,6 @@ async function loadPSP() {
 }
 
 async function save() {
-  // console.log(nodes.value)
   const response = await $fetch('/api/psp/pspsave', {
     method: 'POST',
     body: {
@@ -38,7 +37,6 @@ async function save() {
       level: nodes.value.level,
     }
   })
-  // console.log(response);
   if(response === undefined) {
     toast.add({ severity: 'warning', summary: 'Warning', detail: 'Etwas ist schiefgelaufen', life: 3000 });
   }
@@ -48,7 +46,6 @@ async function save() {
 let output = ref('');
 let hello = ref(null);
 const setScreenshot = ref(true);
-
 
 /**
  * Lädt den Screenshot herunter
@@ -151,7 +148,10 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div>
+       <div v-if="loading">
+        <LoadingSpinner />
+      </div>
+  <div v-else>
     <div style="height: calc(100vh - 90px); overflow-y: auto; overflow-y: auto;">
       <div style="margin-top: 15px;" ref='hello'>
         <OrganizationChart scale="0.7" :value="nodes">
@@ -169,7 +169,7 @@ onBeforeMount(async () => {
 
             </template>
         </OrganizationChart>
-        </div>
+      </div>
     </div>
   </div>
   <Toast position="top-center"/>

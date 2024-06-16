@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TreeTable from 'primevue/treetable';
 import { useToast } from 'primevue/usetoast';
 const session = useSupabaseSession();
 
@@ -55,7 +56,6 @@ async function loadWorkPackages() {
     const response = await $fetch('/api/ap/apgetall', {
       method: 'GET',
     })
-    console.log(response)
 
     if (response === 'PSP not found') {
       router.push('/start')
@@ -100,34 +100,35 @@ await loadWorkPackages()
 // })
 </script>
 <template>
-    <Card>
-        <template #title>
-          <div style="display: flex; justify-content: space-between;">
-            <div>
-              <i class="pi pi-briefcase" style="margin-right: 2px;"></i>  Arbeitspakete
-            </div>
-            <div>
-              <OverlayDiary></OverlayDiary>
-            </div>
+  <Card v-if="!loading">
+      <template #title>
+        <div style="display: flex; justify-content: space-between;">
+          <div>
+            <i class="pi pi-briefcase" style="margin-right: 2px;"></i>  Arbeitspakete
           </div>
-        </template>
-        <template v-if="!loading" #content>
-            <TreeTable :value="nodes">
-                <Column field="name" header="Name" expander></Column>
-                <Column headerStyle="width: 10rem">
-                    <template #body="{ node }">
-                        <div v-if="!node.children" class="d-flex">
-                            <SidebarVue :sidebar-id="String(node.key)" ></SidebarVue>
-                            <Button text type="button" icon="pi pi-pencil" rounded severity="success" @click="navigateTo(node.key)" v-tooltip.top="'Bearbeiten'" />
-                        </div>
-                    </template>
-                </Column>
-            </TreeTable>
-        </template>
-        <template v-else #content>
-            <LoadingSpinner />
-        </template>
-    </Card>
+          <div>
+            <OverlayDiary></OverlayDiary>
+          </div>
+        </div>
+      </template>
+      <template #content>
+          <TreeTable :value="nodes">
+              <Column field="name" header="Name" expander></Column>
+              <Column headerStyle="width: 10rem">
+                  <template #body="{ node }">
+                      <div v-if="!node.children" class="d-flex">
+                          <SidebarVue :sidebar-id="String(node.key)" ></SidebarVue>
+                          <Button text type="button" icon="pi pi-pencil" rounded severity="success" @click="navigateTo(node.key)" v-tooltip.top="'Bearbeiten'" />
+                      </div>
+                  </template>
+              </Column>
+          </TreeTable>
+      </template>
+  </Card>
+
+  <div v-else>
+    <LoadingSpinner />
+  </div>
 </template>
 
 <style>

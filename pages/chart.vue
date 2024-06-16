@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div v-if="loading">
+    <LoadingSpinner />
+  </div>
+  <div v-else>
     <Card style="height: 100%;">
       <template #content>
         <GChart

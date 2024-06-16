@@ -14,7 +14,6 @@ async function loadDiary() {
 
 await loadDiary();
 
-
 </script>
 
 <template>
@@ -39,7 +38,9 @@ await loadDiary();
           <Column field="sources" header="Quellen"></Column>
         </DataTable>
       </div>
-      <LoadingSpinner v-else />
+      <div v-else>
+        <LoadingSpinner />
+      </div>
     </div>
   </template>
 </Card>
