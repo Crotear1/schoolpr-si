@@ -1,11 +1,20 @@
 import mongoose from 'mongoose';
 import { IPSP, PSP } from '~/server/models/pspModel';
 import { IAP, AP } from '~/server/models/apModel';
+import checkAuth from '~/server/api/auth/checkAuth.post';
 
 const PSPModel = mongoose.model<IPSP>('PSP', PSP.schema);
 const APModel = mongoose.model<IAP>('AP', AP.schema);
 
 export default defineEventHandler(async (event) => {
+    const body = await readBody(event);
+
+    if(!await checkAuth(event)) {
+        return new Error('Unauthorized');
+    } else {
+        delete body.token;
+    }
+
     const req = await readBody(event);
     const children = req.children;
     try {

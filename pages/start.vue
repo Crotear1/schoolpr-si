@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import html2canvas from 'html2canvas';
 import { useToast } from 'primevue/usetoast';
 
+const session = useSupabaseSession()
+
 const toast = useToast();
 const router = useRouter();
 
@@ -134,14 +136,6 @@ let output = ref('');
 let hello = ref(null);
 const setScreenshot = ref(true);
 
- const takeScreenshot = async () => {
-  setScreenshot.value = false;
-  await nextTick();
-  const canvas = await html2canvas(hello.value);
-  output.value = canvas.toDataURL();
-  setScreenshot.value = true;
-};
-
 /**
  * Lädt den Screenshot herunter
  * @returns {void}
@@ -159,36 +153,28 @@ const downloadScreenshot = async () => {
   link.click();
 };
 
+async function saveIdOnce() {
+  const response = await $fetch('/api/auth/saveIdOnce', {
+      method: 'POST',
+      body: {
+        persons: nodes.value.persons,
+      }
+  })
+}
+
 async function save() {
   loading.value = true;
-  // const response = await $fetch('/api/auth/saveIdOnce', {
-  //   method: 'POST',
-  //   body: {
-  //     persons: nodes.value.persons,
-  //   }
-  // })
-
-  // nodes.value.persons.forEach((person) => {
-  //   delete person.supabaseId;
-  //   delete person.email;
-  // })
 
   const response = await $fetch('/api/psp/pspsave', {
     method: 'POST',
     body: {
+        token: session.value?.user,
         key: nodes.value.key,
         label: nodes.value.label,
         persons: nodes.value.persons,
         workingDays: nodes.value.workingDays,
         children: nodes.value.children,
         level: nodes.value.level,
-      }
-    })
-
-    const response2 = await $fetch('/api/auth/saveIdOnce', {
-      method: 'POST',
-      body: {
-        persons: nodes.value.persons,
       }
     })
 
@@ -247,9 +233,9 @@ await getAllWorkdays()
                                 <InputGroupAddon>
                                   <i class="pi pi-user"></i>
                                 </InputGroupAddon>
-                                <InputText v-tooltip.focus.top="'Gib den Namen ein, eh logisch oda?'" v-model="person.name" />
-                                <InputText v-tooltip.focus.top="'Gib die ID ein, eh logisch oda?'" v-model="person.supabaseId" />
-                                <InputText v-tooltip.focus.top="'Gib die Email ein, eh logisch oda?'" v-model="person.email" />
+                                <InputText v-tooltip.focus.top="'Gib den Namen ein'" v-model="person.name" />
+                                <InputText v-tooltip.focus.top="'Gib die ID ein, siehe Doku'" v-model="person.supabaseId" />
+                                <InputText v-tooltip.focus.top="'Gib die Email ein'" v-model="person.email" />
 
                               </InputGroup>
                               <Button icon="pi pi-trash" text rounded severity="danger" @click="nodes.persons.splice(index, 1)" />
@@ -263,7 +249,7 @@ await getAllWorkdays()
                 <Toolbar style="margin-top: auto;">
                   <template #end>
                     <div>
-                      <Button :disabled="!isValid" label="Weiter" icon="pi pi-arrow-right" iconPos="right" @click="nextCallback(); setProjectName();" />
+                      <Button :disabled="!isValid" label="Weiter" icon="pi pi-arrow-right" iconPos="right" @click="saveIdOnce(); nextCallback(); setProjectName();" />
                     </div>
                   </template>
                 </Toolbar>

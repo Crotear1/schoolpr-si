@@ -1,13 +1,12 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
+const session = useSupabaseSession();
 
 const toast = useToast();
 
 const loading = ref(true);
 
 const loading2 = ref(false);
-
-const selectedSchoolDays = ref([]);
 
 const loadingPersonRequest = ref(false);
 
@@ -24,6 +23,7 @@ async function save() {
   const response = await $fetch('/api/psp/pspsave', {
     method: 'POST',
     body: {
+      token: session.value?.user,
       key: nodes.value.key,
       label: nodes.value.label,
       workingDays: nodes.value.workingDays,
@@ -77,6 +77,7 @@ async function renamedPerson() {
   const response = await $fetch('/api/items/renamePerson', {
     method: 'PUT',
     body: {
+      token: session.value?.user,
       persons: persons.value
     }
   })

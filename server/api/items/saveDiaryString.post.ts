@@ -1,8 +1,15 @@
 import { Diary } from '~/server/models/diaryModel';
 import { AP, IAP } from '~/server/models/apModel';
+import checkAuth from '~/server/api/auth/checkAuth.post';
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
+
+    if(!await checkAuth(event)) {
+        return new Error('Unauthorized');
+    } else {
+        delete body.token;
+    }
 
     async function calcAndUpdateCompletion(apEntry: IAP) {
       const percent = 1 / Number(apEntry.duration) * 100;

@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useToast } from 'primevue/usetoast';
 const session = useSupabaseSession();
+
+const toast = useToast()
 
 const router = useRouter();
 
@@ -28,38 +31,54 @@ function parseLabels(data) {
 }
 
 function flattenChildren(data) {
-  for (const item of data) {
-    const children = item.children;
-    if (children.length > 0) {
-      item.children = children.reduce((acc, child) => {
-        acc.push(child);
-        acc.push(...child.children);
-        flattenChildren(child.children);
-        return acc;
-      }, []);
+  const flatten = (children) => {
+    return children.reduce((acc, child) => {
+      acc.push(child);
+      if (child.children && child.children.length > 0) {
+        acc.push(...flatten(child.children));
+      }
+      return acc;
+    }, []);
+  };
+
+  return data.map(item => {
+    if (item.children && item.children.length > 0) {
+      item.children = flatten(item.children);
     }
-  }
+    return item;
+  });
 }
 
 async function loadWorkPackages() {
   loading.value = true
-  const response = await $fetch('/api/ap/apgetall', {
-    method: 'GET',
-  })
-
-  const parsedLabels = parseLabels(response)
-
-  flattenChildren(parsedLabels);
-
-  parsedLabels.forEach((item) => {
-    item.children.forEach((child) => {
-      delete child.children
+  try {
+    const response = await $fetch('/api/ap/apgetall', {
+      method: 'GET',
     })
-  })
+    console.log(response)
 
-  nodes.value = parsedLabels
+    if (response === 'PSP not found') {
+      router.push('/start')
+      return
+    }
 
-  loading.value = false
+    const parsedLabels = parseLabels(response)
+
+    flattenChildren(parsedLabels);
+
+    parsedLabels.forEach((item) => {
+      item.children.forEach((child) => {
+        delete child.children
+      })
+    })
+
+    nodes.value = parsedLabels
+
+    loading.value = false
+  } catch (error) {
+    router.push('/start')
+    loading.value = false
+  }
 }
 
 await loadWorkPackages()

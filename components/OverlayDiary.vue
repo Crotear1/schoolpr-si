@@ -42,6 +42,7 @@ async function updateWorkingPackage(){
   const response = await $fetch('/api/items/saveDiaryString', {
     method: 'POST',
     body: {
+      token: session.value.user,
       email: session.value.user.email,
       startTime: formattedStartTime,
       endTime: formattedEndTime,

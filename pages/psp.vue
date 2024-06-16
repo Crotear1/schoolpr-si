@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import html2canvas from 'html2canvas';
 import { useToast } from 'primevue/usetoast';
 
+const session = useSupabaseSession()
+
 const toast = useToast();
 
 const nodes = ref({})
@@ -27,6 +29,7 @@ async function save() {
   const response = await $fetch('/api/psp/pspsave', {
     method: 'POST',
     body: {
+      token: session.value?.user,
       key: nodes.value.key,
       label: nodes.value.label,
       persons: nodes.value.persons,

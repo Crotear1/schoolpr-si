@@ -8,7 +8,6 @@
           :options="options"
           :settings="settings"
         />
-        <!-- <LoadingSpinner v-else /> -->
       </template>
     </Card>
   </div>

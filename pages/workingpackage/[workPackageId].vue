@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useToast } from 'primevue/usetoast';
 
+const session = useSupabaseSession();
+
 const toast = useToast();
 
 const router = useRouter();
@@ -97,6 +99,7 @@ async function saveWorkingPackage() {
   const response = await $fetch(`/api/ap/putAP/${packageId}`, {
     method: 'PUT',
     body: {
+      token: session.value?.user,
       startdate: convert(date.value.start),
       enddate: convert(date.value.end),
       workPackageContent: packageFields.value.workPackageContent,
@@ -106,7 +109,6 @@ async function saveWorkingPackage() {
       selectedPersons: selectedPerson.value,
       dependency: null,
       duration: mathDuration(date.value.start, date.value.end),
-      // selectedDependencies: selectedDependencies,
     }
   })
   isLoading.value = false;
@@ -117,7 +119,6 @@ async function loadDependencies() {
   const response = await $fetch<any>('/api/ap/getApInformations', {
     method: 'GET',
   })
-  // dependencies.value = response;
 
   persons.value = response.users;
   schoolDays.value = response[0].workingDays;
