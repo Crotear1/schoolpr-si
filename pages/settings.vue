@@ -102,7 +102,7 @@ onBeforeMount(async () => {
       </h2>
     </template>
     <template #content>
-      <div v-if="loading" style="height: 100%; display: flex; justify-content: center; align-items: center;">
+      <div v-if="loading" style="height: calc(100vh - 240px); display: flex; justify-content: center; align-items: center;">
         <ProgressSpinner />
       </div>
       <div v-else>

@@ -142,7 +142,6 @@ async function fetchWorkPackage(){
 
 
   selectedPerson.value = response.selectedPersons[0];
-  console.log(response)
 
   if(response.startdate && response.enddate !== null){
     date.value = {
@@ -153,12 +152,27 @@ async function fetchWorkPackage(){
 
 }
 
+const messageState = ref(true);
+
+function saveStateLocalStorage(){
+  messageState.value = false;
+  localStorage.setItem('messageState', messageState.value);
+}
+
 onBeforeMount(async () => {
   await fetchWorkPackage()
   // await loadDependencies()
+  const state = localStorage.getItem('messageState')
+
+  if(state === 'false'){
+    messageState.value = false;
+  } else {
+    messageState.value = true;
+  }
 
   loading.value = false;
 })
+
 </script>
 
 <script setup>
@@ -172,6 +186,7 @@ onBeforeMount(async () => {
       </div>
       <div v-else>
         <Fieldset :legend="'Arbeitspaket: ' + apName">
+        <Message v-if="messageState" severity="info" style="margin-left: 10px; margin-right: 10px;" @close="saveStateLocalStorage()">Das Datum muss immer um einen Tag erweitert werden, z.B. 16.06 - 17.06 für die korrekte Berechnung</Message>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
             <div>
               <div style="display: flex; align-items: center;">

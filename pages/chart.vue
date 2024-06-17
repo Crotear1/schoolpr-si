@@ -66,7 +66,6 @@ async function fetchData() {
   const response = await $fetch('/api/ap/ganttData', {
     method: 'GET',
   })
-  console.log(response.length);
   if(response.length < 2) {
     toast.add({ severity: 'error', summary: 'Keine Daten vorhanden', detail: 'Es sind keine Daten vorhanden.' });
     return;

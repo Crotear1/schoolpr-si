@@ -7,6 +7,8 @@ const toast = useToast();
 const dependencies = ref([])
 const selectedDependencies = ref()
 
+const loading = ref(false)
+
 const isValid = computed(() => !selectedDependencies.value)
 
 const visible = ref(false);
@@ -31,6 +33,7 @@ async function fetchWorkingPackages() {
 }
 
 async function updateWorkingPackage(){
+  loading.value = true;
   const formattedDate = date.value.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
   const startTime = new Date(time.value.time1);
   const endTime = new Date(time.value.time2);
@@ -59,6 +62,7 @@ async function updateWorkingPackage(){
   toast.add({ severity: 'success', summary: 'Info', detail: 'Arbeitspaket erfolgreich aktualisiert', life: 3000 });
 
   visible.value = false;
+  loading.value = false;
 }
 
 watch(async () => visible.value, async () => {
@@ -70,7 +74,7 @@ watch(async () => visible.value, async () => {
 <template>
   <div>
       <Button  type="button" size="large" icon="pi pi-calendar" rounded severity="success" @click="visible = true" v-tooltip.top="'Tagebuch'" />
-      <Dialog v-model:visible="visible" modal header="Erstelle Tagebucheintrag" :style="{ width: '48rem', height: '29rem' }">
+      <Dialog v-model:visible="visible" modal header="Erstelle Tagebucheintrag" :style="{ width: '49rem', height: '29rem' }">
         <div style="display: flex;">
           <div>
             <VDatePicker v-model="date" color="green" />
@@ -106,7 +110,7 @@ watch(async () => visible.value, async () => {
           </div>
         </div>
           <div style="display: flex; justify-content: end; margin-top: 20px;">
-              <Button :disabled="isValid" type="button" label="Speichern und erstellen" @click="updateWorkingPackage()"></Button>
+              <Button :loading="loading" :disabled="isValid" type="button" label="Speichern und erstellen" @click="updateWorkingPackage()"></Button>
           </div>
       </Dialog>
   </div>

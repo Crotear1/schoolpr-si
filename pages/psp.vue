@@ -11,6 +11,10 @@ const nodes = ref({})
 
 const loading = ref(false);
 
+const saveLoading = ref(false);
+
+const screenshotLoading = ref(false);
+
 async function loadPSP() {
   const response = await $fetch('/api/psp/pspget', {
     method: 'GET',
@@ -25,6 +29,7 @@ async function loadPSP() {
 }
 
 async function save() {
+  saveLoading.value = true;
   const response = await $fetch('/api/psp/pspsave', {
     method: 'POST',
     body: {
@@ -41,6 +46,7 @@ async function save() {
     toast.add({ severity: 'warning', summary: 'Warning', detail: 'Etwas ist schiefgelaufen', life: 3000 });
   }
   toast.add({ severity: 'success', summary: 'Info', detail: 'Erfolgreich gespeichert', life: 3000 });
+  saveLoading.value = false;
 }
 
 let output = ref('');
@@ -52,6 +58,7 @@ const setScreenshot = ref(true);
  * @returns {void}
  */
 const downloadScreenshot = async () => {
+  screenshotLoading.value = true;
   setScreenshot.value = false;
   await nextTick();
   const canvas = await html2canvas(hello.value);
@@ -61,6 +68,7 @@ const downloadScreenshot = async () => {
   link.href = output.value;
   link.download = 'screenshot.png';
   link.click();
+  screenshotLoading.value = false;
 };
 
 function addOnePrimaryText(level, key){
@@ -104,7 +112,6 @@ function addOnePrimaryText(level, key){
 
     function updateLabels(node) {
       if (node.level === 1) {
-        console.log(node)
         node.label = `1.${counter} ${node.label.split(" ", 2)[1] ? node.label.split(" ", 2)[1] : ""}`;
         counter++;
       }
@@ -166,7 +173,6 @@ onBeforeMount(async () => {
                     {{ slotProps.node.label }}
                   </span>
                 </div>
-
             </template>
         </OrganizationChart>
       </div>
@@ -175,11 +181,11 @@ onBeforeMount(async () => {
   <Toast position="top-center"/>
   <Toolbar style="margin-top: auto;">
     <template #start>
-      <Button icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
+      <Button :loading="screenshotLoading" icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
     </template>
     <template #end>
       <div style="display: flex; justify-content: end;">
-          <Button label="Speichern" iconPos="right" @click="save()" />
+          <Button :loading="saveLoading" label="Speichern" iconPos="right" @click="save()" />
       </div>
     </template>
     </Toolbar>

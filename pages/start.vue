@@ -135,12 +135,14 @@ function removeById(key){
 let output = ref('');
 let hello = ref(null);
 const setScreenshot = ref(true);
+const loadingScreenshotState = ref(false);
 
 /**
  * Lädt den Screenshot herunter
  * @returns {void}
  */
 const downloadScreenshot = async () => {
+  loadingScreenshotState.value = true;
   setScreenshot.value = false;
   await nextTick();
   const canvas = await html2canvas(hello.value);
@@ -151,6 +153,7 @@ const downloadScreenshot = async () => {
   link.href = output.value;
   link.download = 'screenshot.png';
   link.click();
+  loadingScreenshotState.value = false;
 };
 
 async function saveIdOnce() {
@@ -192,14 +195,14 @@ async function getAllWorkdays() {
 
 await getAllWorkdays()
 
-// onBeforeMount(async () => {
-//   const response = await $fetch('/api/psp/get', {
-//     method: 'GET',
-//   })
-//   if(response[0] !== undefined) {
-//     router.push('/')
-//   }
-// })
+onBeforeMount(async () => {
+  const response = await $fetch('/api/psp/pspget', {
+     method: 'GET',
+   })
+   if(response[0] !== undefined) {
+     router.push('/')
+   }
+})
 
 </script>
 
@@ -209,7 +212,7 @@ await getAllWorkdays()
       <Stepper>
           <StepperPanel header="Projekauftrag">
               <template #content="{ nextCallback }">
-                  <Message severity="info" style="margin-left: 10px; margin-right: 10px;">Alle Eingaben können später bis auf die Personen wieder geändert werden</Message>
+                  <Message severity="info" style="margin-left: 10px; margin-right: 10px;">Alle Eingaben können später, mit Ausnahme der Personendaten, wieder geändert werden</Message>
 
                   <Fieldset legend="Projektauftrag" >
                     <div>
@@ -218,7 +221,7 @@ await getAllWorkdays()
 
                               <InputText v-tooltip.focus.top="'Gib deinen Projektnamen ein'" placeholder="Projektname" v-model="projectName" />
 
-                          <MultiSelect style="margin-left: 20px;" v-tooltip.focus.top="'Gib die Tage ein an denen du die Projektstunden hast'" v-model="nodes.workingDays" :options="schoolWorkingDays" optionLabel="name" placeholder="Schultage"
+                          <MultiSelect style="margin-left: 20px;" v-tooltip.focus.top="'Gib die Tage an, an denen du die Projektstunden hast'" v-model="nodes.workingDays" :options="schoolWorkingDays" optionLabel="name" placeholder="Schultage"
                             :maxSelectedLabels="3" class="w-full md:w-20rem" />
                         </div>
                     <div>
@@ -235,7 +238,7 @@ await getAllWorkdays()
                                 </InputGroupAddon>
                                 <InputText v-tooltip.focus.top="'Gib den Namen ein'" v-model="person.name" />
                                 <InputText v-tooltip.focus.top="'Gib die ID ein, siehe Doku'" v-model="person.supabaseId" />
-                                <InputText v-tooltip.focus.top="'Gib die Email ein'" v-model="person.email" />
+                                <InputText v-tooltip.focus.top="'Gib die Email ein, siehe Doku'" v-model="person.email" />
 
                               </InputGroup>
                               <Button icon="pi pi-trash" text rounded severity="danger" @click="nodes.persons.splice(index, 1)" />
@@ -260,6 +263,7 @@ await getAllWorkdays()
               <template #content="{ prevCallback, nextCallback }">
                   <div >
                       <div style="height: calc(100vh - 220px); overflow-y: auto; overflow-y: auto;">
+                        <Message severity="info" style="margin-left: 10px; margin-right: 10px;">Falls die Eingabefelder zu klein werden, benutze einfach Strg + Mausrad</Message>
                         <div ref='hello'>
                           <OrganizationChart scale="0.7" :value="nodes">
                               <template #default="slotProps">
@@ -281,12 +285,11 @@ await getAllWorkdays()
                   </div>
                   <Toolbar style="margin-top: auto;">
                     <template #start>
-                      <Button icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
+                      <Button :loading="loadingScreenshotState" icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
                     </template>
                     <template #end>
                       <div style="display: flex; justify-content: end;">
-                          <Button label="Zurück" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
-                          <Button label="Speichern" icon="pi pi-arrow-right" iconPos="right" @click="save()" />
+                          <Button :loading="loading" label="Speichern" icon="pi pi-arrow-right" iconPos="right" @click="save()" />
                       </div>
                   </template>
                   </Toolbar>

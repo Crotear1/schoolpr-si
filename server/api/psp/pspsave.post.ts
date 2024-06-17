@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
                 const obj = {_id : ap._id, children : ap.children};
                 const objid = new APModel(obj);
                 children[i] = objid;
-                // console.log(ap);
                 try{
                     await ap.save();
                 }catch{

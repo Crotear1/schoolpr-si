@@ -34,25 +34,27 @@ const PSPSchema: Schema = new Schema({
 });
 
 // fills a psp document with children items
-export const fillPSP = async (children: [IAP]): Promise<[IAP]> => {
+export const fillPSP = async (children: IAP[]): Promise<IAP[]> => {
+  // Schritt 1: Erstelle ein Array von Promises für jede findById Operation
+  const promises = children.map(child => AP.findById(child._id).exec());
 
-  for (let i = 0; i < children.length; i++) {
-    // Find the AP model in the database with the same ID as the current child
-    const obj = await AP.findById(children[i]._id) as IAP;
-    // If the AP model was found in the database
-    if(obj){
-      // Merge the properties of the found AP model into the current child
-      Object.assign(children[i], obj);
+  // Schritt 2: Warte auf alle Promises mit Promise.all
+  const results = await Promise.all(promises);
 
-      // If the current child has its own children
-      if(children[i].children){
-        // Recursively fill the children of the current child
-        children[i].children = await fillPSP(children[i].children);
+  // Schritt 3: Iteriere über die Ergebnisse
+  await Promise.all(children.map(async (child, index) => {
+    const obj = results[index] as IAP;
+    if (obj) {
+      Object.assign(child, obj);
+      if (child.children) {
+        // Schritt 4: Rekursive Aufrufe mit Promise.all für Kinder
+        child.children = await fillPSP(child.children);
       }
     }
-  }
+  }));
+
   return children;
-}
+};
 
 const PSP = model('PSP', PSPSchema); // define PSP Model with PSPSchema
 

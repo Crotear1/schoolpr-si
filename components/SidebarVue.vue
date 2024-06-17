@@ -12,31 +12,28 @@ const visible = ref(false);
 
 const workPackage = ref({});
 
+const loading = ref(false);
+
 let output = ref('');
 let hello = ref(null);
 const setScreenshot = ref(true);
 
 /**
- * Führt einen Screenshot im nächsten Tick aus
- * @returns {Promise<void>}
+ * Lädt den Screenshot herunter
+ * @returns {void}
  */
- const takeScreenshot = async () => {
+const downloadScreenshot = async () => {
+  loading.value = true;
   setScreenshot.value = false;
   await nextTick();
   const canvas = await html2canvas(hello.value);
   output.value = canvas.toDataURL();
   setScreenshot.value = true;
-};
-
-/**
- * Lädt den Screenshot herunter
- * @returns {void}
- */
-const downloadScreenshot = () => {
   const link = document.createElement('a');
   link.href = output.value;
   link.download = 'screenshot.png';
   link.click();
+  loading.value = false;
 };
 
 async function getAP() {
@@ -89,7 +86,7 @@ await getAP();
           </Card>
         </div>
         <div style="margin-top: 10px;">
-          <Button icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
+          <Button :loading="loading" icon="pi pi-download" @click="downloadScreenshot" style="margin-left: 5px;" />
         </div>
       </Sidebar>
       <Button text type="button" icon="pi pi-search" v-tooltip.top="'Anzeigen'" rounded severity="success" @click="visible = true" />

@@ -15,7 +15,6 @@ async function deletePSP(){
             token: session.value?.user,
         }
     })
-    console.log(response)
     toast.add({ severity: 'success', summary: 'Success', detail: 'Projekt wurde erfolgreich gelöscht', life: 3000 });
     router.push('/start')
 }

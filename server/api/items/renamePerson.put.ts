@@ -3,7 +3,6 @@ import checkAuth from '~/server/api/auth/checkAuth.post';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  console.log(body)
 
   if(!await checkAuth(event)) {
     return new Error('Unauthorized');
