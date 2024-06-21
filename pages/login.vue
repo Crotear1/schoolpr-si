@@ -32,7 +32,7 @@ async function handleLogin() {
       <template #content>
         <h1 class="card-title">Login</h1>
         <div style="text-align: center;">
-          <img :src="!snorlaxMood ? 'https://i.gifer.com/Galq.gif' : 'https://i.pinimg.com/originals/02/52/0b/02520bafe50166360f69ac620b22f614.gif'" alt="Logo" style="width: 200px; height: 200px;">
+          <img :src="!snorlaxMood ? 'https://i.gifer.com/Galq.gif' : '/relaxo2.gif'" alt="Logo" style="width: 200px; height: 200px;">
         </div>
         <form @submit.prevent="handleLogin" class="form-content">
           <FloatLabel class="input-field">
