@@ -81,16 +81,6 @@ async function loadWorkPackages() {
   }
 }
 
-const sqlQuery = `SELECT o.*, CONCAT(p.firstName, ' ', p.lastName) AS customerName 
-                        FROM Orders o JOIN Persons p ON o.personID = p.personID 
-                        WHERE o.orderDate >= DATE_SUB(CURDATE(), INTERVAL ? WEEK)`;
-
-function copyToClipboard() {
- navigator.clipboard.writeText(sqlQuery);
-}
-
-copyToClipboard();
-
 await loadWorkPackages()
 
 // async function test() {
